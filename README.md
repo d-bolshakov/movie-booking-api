@@ -7,9 +7,9 @@ API for booking tickets at the cinema.
 ```bash
 $ npm install
 ```
-The app requires PostgreSQL installed locally. Also you have to replace DB_PASSWORD variable in .production.env and .development.env and with your Postgres superuser password.
+The app requires PostgreSQL to be installed locally. Also you have to replace DB_PASSWORD variable in .production.env and .development.env with your Postgres superuser password.
 
-Then use following commands to create a database, it`s schemas and populate it with a seed data:
+Then use the following commands to create a database, its schemas and populate it with a seed data:
 
 ```bash
 $ npm run dbcreate
