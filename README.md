@@ -21,7 +21,7 @@ $ npm run seed
 
 The seed data includes 3 users, 2 movies, 8 showtimes and 3 bookings.
 
-Login credencials of demo users:
+Login credencials for demo users:
 
 User 1:
 email: user1@test.com,
