@@ -17,13 +17,14 @@ import { Booking } from './bookings/models/booking.model';
 import { RoleGuard } from './common/guards/role.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
-
+import { ScheduleModule } from '@nestjs/schedule';
+import { SeederModule } from './seeder/seeder.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`
-    }), 
+      envFilePath: `.${process.env.NODE_ENV}.env`,
+    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST,
@@ -31,13 +32,26 @@ import * as path from 'path';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      models: [User, RefreshToken, Movie, MovieGenres, Genre, Showtime, Booking],
-      autoLoadModels: true
+      models: [
+        User,
+        RefreshToken,
+        Movie,
+        MovieGenres,
+        Genre,
+        Showtime,
+        Booking,
+      ],
+      autoLoadModels: true,
     }),
     ServeStaticModule.forRoot({
       rootPath: path.resolve(__dirname, 'static'),
     }),
-    AuthModule, MoviesModule, ShowtimesModule, BookingsModule
+    ScheduleModule.forRoot(),
+    AuthModule,
+    MoviesModule,
+    ShowtimesModule,
+    BookingsModule,
+    SeederModule,
   ],
   controllers: [],
   providers: [

@@ -7,11 +7,9 @@ import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([Movie, Genre, MovieGenres])
-],
+  imports: [SequelizeModule.forFeature([Movie, Genre, MovieGenres])],
   controllers: [MoviesController],
   providers: [MoviesService],
-  exports: [MoviesService]
+  exports: [MoviesService],
 })
 export class MoviesModule {}

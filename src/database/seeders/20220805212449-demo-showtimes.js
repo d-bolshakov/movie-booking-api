@@ -1,10 +1,8 @@
 'use strict';
 
-function createDatetimes () {
+const createDatetimes = (times, dateOffsets) => {
   const date = new Date();
   let datetimes = []
-  const times = [12, 18]
-  const dateOffsets = [10, 11, 12, 13]
   times.forEach(time => {
           dateOffsets.forEach(dateOffset => {
           let datetime = new Date(date.getTime())
@@ -18,7 +16,9 @@ function createDatetimes () {
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const datetimes = createDatetimes();
+    const times = [12, 18]
+    const dateOffsets = [1, 2, 3, 4]
+    const datetimes = createDatetimes(times, dateOffsets);
     await queryInterface.bulkInsert('showtimes', [{
       movie_id: 1,
       hall_id: 2,

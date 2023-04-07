@@ -10,10 +10,10 @@ import { ShowtimesService } from './showtimes.service';
 @Module({
   imports: [
     SequelizeModule.forFeature([Showtime, Movie, Booking]),
-    MoviesModule
-],
+    MoviesModule,
+  ],
   controllers: [ShowtimesController],
   providers: [ShowtimesService],
-  exports: [ShowtimesService]
+  exports: [ShowtimesService],
 })
 export class ShowtimesModule {}

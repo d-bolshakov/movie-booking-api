@@ -6,11 +6,9 @@ import { BookingsService } from './bookings.service';
 import { Booking } from './models/booking.model';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([Booking]),
-    ShowtimesModule
-  ],
+  imports: [SequelizeModule.forFeature([Booking]), ShowtimesModule],
   controllers: [BookingsController],
-  providers: [BookingsService]
+  providers: [BookingsService],
+  exports: [BookingsService],
 })
 export class BookingsModule {}
