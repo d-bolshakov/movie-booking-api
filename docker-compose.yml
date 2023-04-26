@@ -1,0 +1,32 @@
+version: '3'
+services:
+  db:
+    container_name: movie-booking-db
+    image: postgres:alpine
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: root
+    volumes:
+      - ./volumes/postgres-prod:/var/lib/postgresql/data
+    
+  
+  backend:
+    container_name: movie-booking-backend
+    build: 
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - 5000:5000
+    restart: always
+    depends_on:
+      - db
+
+  migrations:
+    container_name: movie-booking-migrations
+    build:
+      context: .
+      dockerfile: Dockerfile.migrations
+    command: './scripts/wait-for-it.sh db:5432 -- ./scripts/migrate.sh'
+    depends_on:
+      - db
+    

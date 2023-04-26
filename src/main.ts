@@ -6,6 +6,8 @@ async function start() {
   const PORT = Number(process.env.PORT) || 5000;
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api')
+
   const config = new DocumentBuilder()
     .setTitle('Movie booking API')
     .setDescription('API for booking seats at cinema')

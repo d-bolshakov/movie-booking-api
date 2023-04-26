@@ -15,9 +15,6 @@ import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/
 import { Public, Role } from 'src/common/decorators';
 import { AddMovieDto } from './dto/add-movie.dto';
 import { MoviesService } from './movies.service';
-import { diskStorage } from 'multer';
-import * as path from 'path';
-import * as uuid from 'uuid';
 import { SendMovieDto } from './dto';
 
 @ApiTags('Movies')
@@ -56,22 +53,11 @@ export class MoviesController {
   @Post('/add')
   @HttpCode(HttpStatus.OK)
   @Role('admin')
-  @UseInterceptors(
-    FileInterceptor('cover', {
-      storage: diskStorage({
-        destination: './static/moviecovers',
-        filename: (req, file, cb) => {
-          const filename: string = uuid.v4();
-          const extension = path.parse(file.originalname).ext;
-          return cb(null, `${filename}${extension}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('cover'))
   async addMovie(
     @Body(new ValidationPipe({ transform: true })) addMovieDto: AddMovieDto,
     @UploadedFile() cover,
   ) {
-    return this.moviesService.addMovie(addMovieDto, cover.filename);
+    return this.moviesService.addMovie(addMovieDto, cover);
   }
 }

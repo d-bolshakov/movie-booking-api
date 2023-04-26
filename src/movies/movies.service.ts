@@ -4,12 +4,14 @@ import { SendMovieDto } from './dto';
 import { AddMovieDto } from './dto/add-movie.dto';
 import { Genre } from './models/genre.model';
 import { Movie } from './models/movie.model';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class MoviesService {
   constructor(
     @InjectModel(Movie) private movieRepository: typeof Movie,
     @InjectModel(Genre) private genreRepository: typeof Genre,
+    private filesService: FilesService
   ) {}
 
   async getAllMovies() {
@@ -31,9 +33,10 @@ export class MoviesService {
   }
 
   async addMovie(dto: AddMovieDto, movieCover: any) {
+    const fileName = await this.filesService.saveMovieCover(movieCover)
     const movie = await this.movieRepository.create({
       ...dto,
-      cover: movieCover,
+      cover: fileName,
       genres: [],
     });
     dto.genres.map(async (genre) => {
