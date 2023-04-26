@@ -19,6 +19,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SeederModule } from './seeder/seeder.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { SeederModule } from './seeder/seeder.module';
     ShowtimesModule,
     BookingsModule,
     SeederModule,
+    FilesModule
   ],
   controllers: [],
   providers: [
