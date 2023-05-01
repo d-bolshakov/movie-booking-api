@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from './auth/auth.module';
@@ -23,9 +22,6 @@ import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: `.${process.env.NODE_ENV}.env`,
-    }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST,

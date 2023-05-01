@@ -1,39 +1,43 @@
 version: '3'
 services:
   db:
-    container_name: movie-booking-db
+    container_name: movie-booking-db-dev
     image: postgres:alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: root
     volumes:
-      - ./volumes/postgres-prod:/var/lib/postgresql/data
+      - ./volumes/postgres-dev:/var/lib/postgresql/data
     
   
   backend:
-    container_name: movie-booking-backend
-    image: denysbolshakov/movie-booking-backend
+    container_name: movie-booking-backend-dev
     build: 
       context: .
       dockerfile: Dockerfile.backend
-      target: prod
+      target: dev
+    image: movie-booking-backend:dev
+    volumes:
+      - .:/app
+    expose:
+      - '5000'
     ports:
       - 5000:5000
     restart: always
     env_file:
-      - .production.env
+      - .development.env
+    command: npm run start:dev
     depends_on:
       - db
 
   migrations:
-    container_name: movie-booking-migrations
-    image: movie-booking-migrations
+    container_name: movie-booking-migrations-dev
     build:
       context: .
       dockerfile: Dockerfile.migrations
-    env_file:
-      - .production.env
+    image: movie-booking-migrations:dev
     command: './database/scripts/wait-for-it.sh db:5432 -- ./database/scripts/migrate.sh'
+    env_file:
+      - .development.env
     depends_on:
       - db
-    
