@@ -39,3 +39,8 @@ services:
     depends_on:
       - db
     
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.37.0.0/16
