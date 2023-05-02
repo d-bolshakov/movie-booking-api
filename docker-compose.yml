@@ -29,7 +29,7 @@ services:
 
   migrations:
     container_name: movie-booking-migrations
-    image: movie-booking-migrations
+    image: denysbolshakov/movie-booking-migrations
     build:
       context: .
       dockerfile: Dockerfile.migrations
