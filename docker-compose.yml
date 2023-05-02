@@ -29,7 +29,7 @@ services:
 
   migrations:
     container_name: movie-booking-migrations
-    image: movie-booking-migrations
+    image: denysbolshakov/movie-booking-migrations
     build:
       context: .
       dockerfile: Dockerfile.migrations
@@ -39,8 +39,11 @@ services:
     depends_on:
       - db
     
+<<<<<<< HEAD
 networks:
   default:
     ipam:
       config:
         - subnet: 172.37.0.0/16
+=======
+>>>>>>> 386538e6371d6ae53151199d3086c93225fa60c3
