@@ -1,3 +1,3 @@
-npm run dbcreate
-npm run migrate
-npm run seed
+npx sequelize-cli db:create
+npx sequelize-cli db:migrate
+npx sequelize-cli db:seed:all

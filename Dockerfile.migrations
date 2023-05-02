@@ -6,9 +6,9 @@ COPY ./.sequelizerc .
 
 COPY ./database ./database
 
-COPY package*.json ./
+RUN npm init -y
 
-RUN npm install sequelize-cli
+RUN npm install sequelize pg pg-hstore sequelize-cli
 
 RUN apk update && apk add bash
 
