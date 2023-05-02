@@ -34,10 +34,5 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-/volumes/postgres-prod/*
-/volumes/postgres-dev/*
-!/volumes/postgres-prod/postgresql.conf
-!/volumes/postgres-prod/pg_hba.conf
-!/volumes/postgres-dev/postgresql.conf
-!/volumes/postgres-dev/pg_hba.conf
+/volumes/*
 !/volumes/moviecovers-prod
