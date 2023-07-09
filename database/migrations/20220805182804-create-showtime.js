@@ -10,27 +10,29 @@ module.exports = {
         unique: true,
         primaryKey: true,
       },
-      movie_id: {
+      movieId: {
         type: Sequelize.INTEGER,
-        references: {model: {tableName: 'genres'}, key: 'id'},
-        allowNull: false
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        references: { model: { tableName: 'genres' }, key: 'id' },
+        allowNull: false,
       },
-      hall_id: {
+      hallId: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
-      seats_count: {
+      seatsCount: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       datetime: {
         type: Sequelize.DATE,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
     return queryInterface.dropTable('showtimes');
-  }
+  },
 };

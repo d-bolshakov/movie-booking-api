@@ -7,11 +7,10 @@ import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
 import { FilesModule } from 'src/files/files.module';
 
-
 @Module({
   imports: [
     SequelizeModule.forFeature([Movie, Genre, MovieGenres]),
-    FilesModule
+    FilesModule,
   ],
   controllers: [MoviesController],
   providers: [MoviesService],

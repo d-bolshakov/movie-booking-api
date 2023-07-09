@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Booking } from '../models/booking.model';
 
 export class SendBookingDto {
-  constructor(booking: any) {
+  constructor(booking: Booking) {
     this.id = booking.id;
-    this.user_id = booking.user_id;
-    this.showtime_id = booking.showtime_id;
+    this.userId = booking.userId;
+    this.showtimeId = booking.showtimeId;
     this.seat = booking.seat;
-    this.bookedAt = booking.created_at;
+    this.bookedAt = booking.createdAt;
     this.paid = booking.paid;
   }
 
@@ -20,13 +21,13 @@ export class SendBookingDto {
     example: '1',
     description: 'Unique identificator of the user',
   })
-  readonly user_id: number;
+  readonly userId: number;
 
   @ApiProperty({
     example: '1',
     description: 'Unique identificator of the showtime',
   })
-  readonly showtime_id: number;
+  readonly showtimeId: number;
 
   @ApiProperty({ example: '13', description: 'Number of the booked seat' })
   readonly seat: number;
@@ -38,5 +39,5 @@ export class SendBookingDto {
   readonly bookedAt: Date;
 
   @ApiProperty({ example: 'false', description: 'Status of the booking' })
-  readonly paid: Boolean;
+  readonly paid: boolean;
 }

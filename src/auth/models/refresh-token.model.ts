@@ -9,11 +9,11 @@ import {
 import { User } from './user.model';
 
 interface RefreshTokenCreationAttrs {
-  user_id: number;
-  refresh_token: string;
+  userId: number;
+  refreshToken: string;
 }
 
-@Table({ tableName: 'refresh_tokens', timestamps: false })
+@Table({ tableName: 'refreshTokens', timestamps: false })
 export class RefreshToken extends Model<
   RefreshToken,
   RefreshTokenCreationAttrs
@@ -28,10 +28,10 @@ export class RefreshToken extends Model<
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, unique: true, allowNull: false })
-  user_id: number;
+  userId: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
-  refresh_token: string;
+  refreshToken: string;
 
   @BelongsTo(() => User)
   user: User;

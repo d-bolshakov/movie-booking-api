@@ -20,9 +20,9 @@ export class MovieGenres extends Model<MovieGenres> {
 
   @ForeignKey(() => Movie)
   @Column({ type: DataType.INTEGER })
-  movie_id: number;
+  movieId: number;
 
   @ForeignKey(() => Genre)
   @Column({ type: DataType.INTEGER })
-  genre_id: number;
+  genreId: number;
 }

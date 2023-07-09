@@ -12,24 +12,24 @@ module.exports = {
       },
       title: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       cover: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
       director: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
       },
-      release_date: {
+      releaseDate: {
         type: Sequelize.DATEONLY,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
     return queryInterface.dropTable('movies');
-  }
+  },
 };

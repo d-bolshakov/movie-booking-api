@@ -2,14 +2,13 @@ import {
   BelongsToMany,
   Column,
   DataType,
-  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { MovieGenres } from './movie-genres.model';
 import { Movie } from './movie.model';
 
-interface GenreCreationAttrs {
+export interface GenreCreationAttrs {
   value: string;
   title: string;
 }

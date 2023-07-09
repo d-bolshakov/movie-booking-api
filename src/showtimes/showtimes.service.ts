@@ -1,156 +1,132 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
-import { Movie } from 'src/movies/models/movie.model';
-import { AddShowtimeDto, GetShowtimesFilterDto, SendShowtimeDto } from './dto';
+import { AddShowtimeDto, GetShowtimesFilterDto, EditShowtimeDto } from './dto';
 import { Showtime } from './models/showtime.model';
+import { Booking } from 'src/bookings/models/booking.model';
+import { BookingsService } from 'src/bookings/bookings.service';
+import { MoviesService } from 'src/movies/movies.service';
 
 @Injectable()
 export class ShowtimesService {
   constructor(
     @InjectModel(Showtime) private showtimeRepository: typeof Showtime,
-    @InjectModel(Movie) private movieRepository: typeof Movie,
+    private moviesService: MoviesService,
+    private bookingsService: BookingsService,
   ) {}
 
-  async getShowtimesByDate(dto: GetShowtimesFilterDto) {
-    var endDate = new Date(dto.startDate);
-    endDate.setDate(endDate.getDate() + 1);
-    const showtimes = await this.showtimeRepository.findAll({
-      where: {
-        datetime: {
-          [Op.and]: {
-            [Op.gte]: dto.startDate,
-            [Op.lte]: endDate,
-          },
+  async getShowtimes(dto?: GetShowtimesFilterDto): Promise<Showtime[]> {
+    if (dto.endDate && dto.endDate < dto.startDate)
+      throw new HttpException(
+        'endDate is lower than startDate',
+        HttpStatus.BAD_REQUEST,
+      );
+    const filteringOptions = {
+      ...(dto.movieId && { movieId: dto.movieId }),
+      datetime: {
+        [Op.and]: {
+          [Op.gte]: dto.startDate ? dto.startDate : new Date(),
+          ...(dto.startDate && {
+            [Op.lte]: dto.endDate
+              ? dto.endDate
+              : new Date(dto.startDate.getTime() + 1000 * 60 * 60 * 24),
+          }),
         },
       },
-    });
-    const showtimesDto = showtimes.map((showtime) => {
-      return new SendShowtimeDto(showtime);
-    });
-    return showtimesDto;
-  }
-  async getShowtimesByPeriod(dto: GetShowtimesFilterDto) {
-    if (dto.endDate < dto.startDate) throw new HttpException(
-      `endDate is lower than startDate`,
-      HttpStatus.BAD_REQUEST,
-    );
+    };
     const showtimes = await this.showtimeRepository.findAll({
-      where: {
-        datetime: {
-          [Op.and]: {
-            [Op.gte]: dto.startDate,
-            [Op.lte]: dto.endDate,
-          },
-        },
+      where: filteringOptions,
+      include: {
+        model: Booking,
+        attributes: ['seat'],
       },
     });
-    const showtimesDto = showtimes.map((showtime) => {
-      return new SendShowtimeDto(showtime);
-    });
-    return showtimesDto;
-  }
-  async getShowtimesByMovie(dto: GetShowtimesFilterDto) {
-    const showtimes = await this.showtimeRepository.findAll({
-      where: {
-        movie_id: dto.movieId,
-        datetime: {
-          [Op.gte]: new Date(),
-        },
-      },
-    });
-    const showtimesDto = showtimes.map((showtime) => {
-      return new SendShowtimeDto(showtime);
-    });
-    return showtimesDto;
-  }
-  async getShowtimesByMovieAndDate(dto: GetShowtimesFilterDto) {
-    var endDate = new Date(dto.startDate);
-    endDate.setDate(endDate.getDate() + 1);
-    const showtimes = await this.showtimeRepository.findAll({
-      where: {
-        movie_id: dto.movieId,
-        datetime: {
-          [Op.and]: {
-            [Op.gte]: dto.startDate,
-            [Op.lte]: endDate,
-          },
-        },
-      },
-    });
-    const showtimesDto = showtimes.map((showtime) => {
-      return new SendShowtimeDto(showtime);
-    });
-    return showtimesDto;
-  }
-  async getShowtimesByMovieAndPeriod(dto: GetShowtimesFilterDto) {
-    if (dto.endDate < dto.startDate) throw new HttpException(
-      `endDate is lower than startDate`,
-      HttpStatus.BAD_REQUEST,
-    );
-    const showtimes = await this.showtimeRepository.findAll({
-      where: {
-        movie_id: dto.movieId,
-        datetime: {
-          [Op.and]: {
-            [Op.gte]: dto.startDate,
-            [Op.lte]: dto.endDate,
-          },
-        },
-      },
-    });
-    const showtimesDto = showtimes.map((showtime) => {
-      return new SendShowtimeDto(showtime);
-    });
-    return showtimesDto;
+    return showtimes;
   }
 
-  async getShowtimes() {
-    const showtimes = await this.showtimeRepository.findAll({
-      where: {
-        datetime: {
-          [Op.gte]: new Date(),
-        },
-      },
-    });
-    const showtimesDto = showtimes.map((showtime) => {
-      return new SendShowtimeDto(showtime);
-    });
-    return showtimesDto;
-  }
-
-  async getShowtimeById(showtimeId: number) {
+  async getShowtimeById(id: number): Promise<Showtime> {
     const showtime = await this.showtimeRepository.findOne({
-      where: {
-        id: showtimeId,
+      where: { id },
+      include: {
+        model: Booking,
+        attributes: ['seat'],
       },
     });
     if (!showtime)
       throw new HttpException(
-        `Showtime with id ${showtimeId} does not exist`,
+        `Showtime with id ${id} does not exist`,
         HttpStatus.BAD_REQUEST,
       );
-    return new SendShowtimeDto(showtime);
+    return showtime;
   }
 
-  async addShowtime(dto: AddShowtimeDto) {
-    const movie = await this.movieRepository.findOne({
-      where: {
-        id: dto.movie_id,
-      },
-    });
-    if (!movie)
+  async getBookingsByShowtimeId(id: number): Promise<Booking[]> {
+    const showtime = await this.getShowtimeById(id);
+    if (!showtime)
       throw new HttpException(
-        `Movie with id ${dto.movie_id} does not exist`,
+        `Showtime with id ${id} doesn't exist`,
         HttpStatus.BAD_REQUEST,
       );
-    if (await this.showtimeRepository.findOne({
-      where: {
-        datetime: dto.datetime,
-        hall_id: dto.hall_id
-      }
-    })) throw new HttpException(`Hall ${dto.hall_id} will not be available at ${dto.datetime}`, HttpStatus.BAD_REQUEST);
+    return this.bookingsService.getListByShowtimeId(id);
+  }
+
+  async addShowtime(dto: AddShowtimeDto): Promise<Showtime> {
+    const movie = await this.moviesService.getMovieById(dto.movieId);
+    if (!movie)
+      throw new HttpException(
+        `Movie with id ${dto.movieId} does not exist`,
+        HttpStatus.BAD_REQUEST,
+      );
+    if (!(await this.isHallAvailable(dto.hallId, dto.datetime)))
+      throw new HttpException(
+        `Hall ${dto.hallId} will not be available at ${dto.datetime}`,
+        HttpStatus.BAD_REQUEST,
+      );
     const showtime = await this.showtimeRepository.create({ ...dto });
-    return new SendShowtimeDto(showtime);
+    return showtime;
+  }
+
+  async editShowtime(id: number, dto: EditShowtimeDto): Promise<Showtime> {
+    const showtime = await this.getShowtimeById(id);
+    if (!showtime)
+      throw new HttpException(
+        `Showtime with id ${id} doesn't exist`,
+        HttpStatus.BAD_REQUEST,
+      );
+    if (dto.movieId) await this.moviesService.getMovieById(dto.movieId);
+    if (dto.hallId || dto.datetime) {
+      const hallId = dto.hallId ? dto.hallId : showtime.hallId;
+      const datetime = dto.datetime ? dto.datetime : showtime.datetime;
+      if (!(await this.isHallAvailable(hallId, datetime)))
+        throw new HttpException(
+          `Hall ${hallId} will not be available at ${datetime}`,
+          HttpStatus.BAD_REQUEST,
+        );
+    }
+    showtime.set(dto);
+    await showtime.save();
+    return showtime;
+  }
+
+  async deleteShowtime(id: number): Promise<{ message: string }> {
+    const showtime = await this.getShowtimeById(id);
+    if (!showtime)
+      throw new HttpException(
+        `Showtime with id ${id} doesn't exist`,
+        HttpStatus.BAD_REQUEST,
+      );
+    await showtime.destroy();
+    return { message: 'Showtime was deleted successfully' };
+  }
+
+  async isHallAvailable(hallId: number, datetime: Date): Promise<boolean> {
+    const candidate = await this.showtimeRepository.findOne({
+      where: {
+        datetime,
+        hallId,
+      },
+    });
+    if (candidate) return false;
+    return true;
   }
 }

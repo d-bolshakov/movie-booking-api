@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    return queryInterface.createTable('refresh_tokens', {
+    return queryInterface.createTable('refreshTokens', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -10,20 +10,22 @@ module.exports = {
         unique: true,
         primaryKey: true,
       },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
-        references: {model: {tableName: 'users'}, key: 'id'},
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        references: { model: { tableName: 'users' }, key: 'id' },
         unique: true,
-        allowNull: false
+        allowNull: false,
       },
-      refresh_token: {
+      refreshToken: {
         type: Sequelize.STRING,
-        allowNull: false
-      }
+        allowNull: false,
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('refresh_tokens');
-  }
+    return queryInterface.dropTable('refreshTokens');
+  },
 };

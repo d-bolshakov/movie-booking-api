@@ -10,33 +10,37 @@ module.exports = {
         unique: true,
         primaryKey: true,
       },
-      showtime_id: {
+      showtimeId: {
         type: Sequelize.INTEGER,
-        references: {model: {tableName: 'showtimes'}, key: 'id'},
-        allowNull: false
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        references: { model: { tableName: 'showtimes' }, key: 'id' },
+        allowNull: false,
       },
-      user_id: {
+      userId: {
         type: Sequelize.INTEGER,
-        references: {model: {tableName: 'users'}, key: 'id'},
-        allowNull: false
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        references: { model: { tableName: 'users' }, key: 'id' },
+        allowNull: false,
       },
       seat: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
-      created_at: {
+      createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
       },
       paid: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false
-      }
+        defaultValue: false,
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
     return queryInterface.dropTable('bookings');
-  }
+  },
 };

@@ -42,5 +42,5 @@ export class User extends Model<User, UserCreationAttrs> {
   bookings: Booking[];
 
   @HasOne(() => RefreshToken)
-  refresh_token: RefreshToken;
+  refreshToken: RefreshToken;
 }

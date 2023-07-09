@@ -10,11 +10,11 @@ import { User } from 'src/auth/models/user.model';
 import { Showtime } from 'src/showtimes/models/showtime.model';
 
 interface BookingCreationAttrs {
-  showtime_id: number;
-  user_id: number;
+  showtimeId: number;
+  userId: number;
   seat: number;
-  created_at: Date;
-  paid: Boolean;
+  createdAt: Date;
+  paid: boolean;
 }
 
 @Table({ tableName: 'bookings', timestamps: false })
@@ -29,20 +29,20 @@ export class Booking extends Model<Booking, BookingCreationAttrs> {
 
   @ForeignKey(() => Showtime)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  showtime_id: number;
+  showtimeId: number;
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  user_id: number;
+  userId: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
   seat: number;
 
   @Column({ type: DataType.DATE, allowNull: false })
-  created_at: Date;
+  createdAt: Date;
 
   @Column({ type: DataType.BOOLEAN, allowNull: false, defaultValue: false })
-  paid: Boolean;
+  paid: boolean;
 
   @BelongsTo(() => Showtime)
   showtime: Showtime;

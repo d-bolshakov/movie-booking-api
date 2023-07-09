@@ -1,18 +1,25 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   Post,
-  UsePipes,
+  Put,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { GetCurrentUserId, Public, Role } from 'src/common/decorators';
+import {
+  ApiHeader,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { GetCurrentUserId, Role } from 'src/common/decorators';
 import { BookingsService } from './bookings.service';
-import { BookDto } from './dto/book.dto';
+import { CreateBookingDto } from './dto/create-booking.dto';
 import { SendBookingDto } from './dto/send-booking.dto';
 
 @ApiTags('Bookings')
@@ -28,12 +35,15 @@ export class BookingsController {
   @ApiResponse({ status: 200, type: SendBookingDto })
   @Post('/')
   @HttpCode(HttpStatus.OK)
-  @UsePipes(ValidationPipe)
-  async book(@GetCurrentUserId() userId: number, @Body() bookingDto: BookDto) {
-    return this.bookingsService.book(userId, bookingDto);
+  async createBooking(
+    @GetCurrentUserId() id: number,
+    @Body(new ValidationPipe({ transform: true })) bookingDto: CreateBookingDto,
+  ) {
+    const booking = await this.bookingsService.createBooking(id, bookingDto);
+    return new SendBookingDto(booking);
   }
 
-  @ApiOperation({ summary: 'Getting a list of bookings by user`s id' })
+  @ApiOperation({ summary: "Getting a list of bookings by user's id" })
   @ApiHeader({
     name: 'Authorization',
     description: 'Authorization header with Bearer access-token',
@@ -41,23 +51,10 @@ export class BookingsController {
   @ApiResponse({ status: 200, type: [SendBookingDto] })
   @Get('/')
   @HttpCode(HttpStatus.OK)
-  async getListByUserId(@GetCurrentUserId() userId: number) {
-    return this.bookingsService.getListByUserId(userId);
-  }
-
-  @ApiOperation({
-    summary: 'Getting a list of bookings by showtime`s id (for admin only)',
-  })
-  @ApiHeader({
-    name: 'Authorization',
-    description: 'Authorization header with Bearer access-token',
-  })
-  @ApiResponse({ status: 200, type: [SendBookingDto] })
-  @Get('/:showtimeId')
-  @HttpCode(HttpStatus.OK)
-  @Role('admin')
-  async getListByShowtimeId(@Param('showtimeId') showtimeId: number) {
-    return this.bookingsService.getListByShowtimeId(showtimeId);
+  async getListByUserId(@GetCurrentUserId() id: number) {
+    const bookings = await this.bookingsService.getListByUserId(id);
+    if (!bookings.length) return [];
+    return bookings.map((booking) => new SendBookingDto(booking));
   }
 
   @ApiOperation({ summary: 'Canceling a booking' })
@@ -65,8 +62,9 @@ export class BookingsController {
     name: 'Authorization',
     description: 'Authorization header with Bearer access-token',
   })
+  @ApiParam({ name: 'id', type: Number, description: 'Id of the booking' })
   @ApiResponse({ status: 200 })
-  @Get('/cancel/:id')
+  @Delete('/:id')
   @HttpCode(HttpStatus.OK)
   async cancelBooking(
     @GetCurrentUserId() userId: number,
@@ -80,20 +78,13 @@ export class BookingsController {
     name: 'Authorization',
     description: 'Authorization header with Bearer access-token',
   })
+  @ApiParam({ name: 'id', type: Number, description: 'Id of the booking' })
   @ApiResponse({ status: 200, type: SendBookingDto })
-  @Get('/update/:id')
+  @Put('/:id')
   @HttpCode(HttpStatus.OK)
   @Role('admin')
-  async updateStatus(@Param('id') bookingId: number) {
-    return this.bookingsService.updateStatus(bookingId);
-  }
-
-  @ApiOperation({ summary: 'Getting a list of booked seats by showtime id' })
-  @ApiResponse({ status: 200, type: [Number] })
-  @Public()
-  @Get('/booked/:id')
-  @HttpCode(HttpStatus.OK)
-  async getBooked(@Param('id') showtimeId: number) {
-    return this.bookingsService.getBooked(showtimeId);
+  async updateStatus(@Param('id') id: number) {
+    const booking = await this.bookingsService.updateStatus(id);
+    return new SendBookingDto(booking);
   }
 }

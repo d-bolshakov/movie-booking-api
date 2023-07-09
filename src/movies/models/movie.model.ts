@@ -14,8 +14,8 @@ interface MovieCreationAttrs {
   title: string;
   cover: string;
   director: string;
-  release_date: Date;
-  genres: [];
+  releaseDate: Date;
+  genres?: any;
 }
 
 @Table({ tableName: 'movies', timestamps: false })
@@ -38,11 +38,11 @@ export class Movie extends Model<Movie, MovieCreationAttrs> {
   director: string;
 
   @Column({ type: DataType.DATEONLY, allowNull: false })
-  release_date: Date;
+  releaseDate: Date;
 
   @BelongsToMany(() => Genre, () => MovieGenres)
   genres: Genre[];
 
-  @HasMany(() => Showtime)
+  @HasMany(() => Showtime, { onDelete: 'CASCADE', hooks: true })
   showtimes: Showtime[];
 }

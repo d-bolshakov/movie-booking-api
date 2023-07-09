@@ -8,9 +8,7 @@ COPY ./database ./database
 
 RUN npm init -y
 
-RUN npm install sequelize pg pg-hstore sequelize-cli
+RUN npm i sequelize@6.32.1 pg@8.11.1 pg-hstore@2.3.4 sequelize-cli@6.6.1
 
-RUN apk update && apk add bash
-
-CMD ["sh", "/app/database/scripts/migrate.sh"]
+CMD ["/bin/sh", "-c", "npx sequelize-cli db:create && npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all"]
 

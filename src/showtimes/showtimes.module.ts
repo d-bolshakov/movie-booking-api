@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Booking } from 'src/bookings/models/booking.model';
-import { Movie } from 'src/movies/models/movie.model';
 import { MoviesModule } from 'src/movies/movies.module';
 import { Showtime } from './models/showtime.model';
 import { ShowtimesController } from './showtimes.controller';
 import { ShowtimesService } from './showtimes.service';
+import { BookingsModule } from 'src/bookings/bookings.module';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Showtime, Movie, Booking]),
+    SequelizeModule.forFeature([Showtime]),
     MoviesModule,
+    BookingsModule,
   ],
   controllers: [ShowtimesController],
   providers: [ShowtimesService],

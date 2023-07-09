@@ -1,8 +1,14 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ShowtimesService } from 'src/showtimes/showtimes.service';
-import { BookDto } from './dto/book.dto';
-import { SendBookingDto } from './dto/send-booking.dto';
+import { CreateBookingDto } from './dto/create-booking.dto';
 import { Booking } from './models/booking.model';
 import { Cron } from '@nestjs/schedule';
 
@@ -10,15 +16,16 @@ import { Cron } from '@nestjs/schedule';
 export class BookingsService {
   constructor(
     @InjectModel(Booking) private bookingRepository: typeof Booking,
+    @Inject(forwardRef(() => ShowtimesService))
     private showtimesService: ShowtimesService,
   ) {}
 
   private readonly logger = new Logger(BookingsService.name);
 
-  async book(userId: number, dto: BookDto) {
+  async createBooking(userId: number, dto: CreateBookingDto) {
     const candidate = await this.bookingRepository.findOne({
       where: {
-        showtime_id: dto.showtime_id,
+        showtimeId: dto.showtimeId,
         seat: dto.seat,
       },
     });
@@ -28,23 +35,23 @@ export class BookingsService {
         HttpStatus.BAD_REQUEST,
       );
     const showtime = await this.showtimesService.getShowtimeById(
-      dto.showtime_id,
+      dto.showtimeId,
     );
     if (
-      showtime.seats_count < dto.seat ||
+      showtime.seatsCount < dto.seat ||
       showtime.datetime < new Date() ||
       showtime.datetime.getTime() - new Date().getTime() < 15 * 60 * 1000
     )
       throw new HttpException(`Bad request`, HttpStatus.BAD_REQUEST);
     const booking = await this.bookingRepository.create({
       ...dto,
-      user_id: userId,
-      created_at: new Date(),
+      userId,
+      createdAt: new Date(),
     });
-    return new SendBookingDto(booking);
+    return booking;
   }
 
-  async cancelBooking(userId, bookingId) {
+  async cancelBooking(userId: number, bookingId: number) {
     const booking = await this.bookingRepository.findOne({
       where: {
         id: bookingId,
@@ -52,35 +59,19 @@ export class BookingsService {
     });
     if (!booking)
       throw new HttpException('Booking is not found', HttpStatus.NOT_FOUND);
-    if (booking.user_id !== userId)
+    if (booking.userId !== userId)
       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     const showtime = await this.showtimesService.getShowtimeById(
-      booking.showtime_id,
+      booking.showtimeId,
     );
     if (showtime.datetime < new Date())
       throw new HttpException('Access denied', HttpStatus.FORBIDDEN);
     booking.destroy();
+    return { message: 'Booking was cancelled successfully' };
   }
 
-  async getBooked(showtimeId: number) {
-    const bookings = await this.bookingRepository.findAll({
-      where: {
-        showtime_id: showtimeId,
-      },
-    });
-    if (!bookings) return [];
-    const booked = bookings.map((booking) => {
-      return booking.seat;
-    });
-    return booked;
-  }
-
-  async updateStatus(bookingId: number) {
-    const booking = await this.bookingRepository.findOne({
-      where: {
-        id: bookingId,
-      },
-    });
+  async updateStatus(id: number) {
+    const booking = await this.bookingRepository.findOne({ where: { id } });
     if (!booking)
       throw new HttpException('Booking is not found', HttpStatus.NOT_FOUND);
     if (booking.paid)
@@ -89,47 +80,37 @@ export class BookingsService {
         HttpStatus.BAD_REQUEST,
       );
     const updated = await booking.update({ paid: true });
-    return new SendBookingDto(updated);
+    return updated;
   }
 
   async getListByUserId(userId: number) {
     const bookings = await this.bookingRepository.findAll({
       where: {
-        user_id: userId,
+        userId: userId,
       },
     });
-    if (bookings.length === 0) return [];
-    const bookingsList = bookings.map((booking) => {
-      return new SendBookingDto(booking);
-    });
-    return bookingsList;
+    return bookings;
   }
 
   async getListByShowtimeId(showtimeId: number) {
     const bookings = await this.bookingRepository.findAll({
-      where: {
-        showtime_id: showtimeId,
-      },
+      where: { showtimeId },
     });
-    if (bookings.length === 0) return [];
-    const bookingsList = bookings.map((booking) => {
-      return new SendBookingDto(booking);
-    });
-    return bookingsList;
+    return bookings;
   }
 
   @Cron('*/15 * * * *')
   async deleteUnpaid() {
     this.logger.log('Checking for upcoming showtimes');
-    const upcoming = await this.showtimesService.getShowtimesByPeriod({
+    const upcoming = await this.showtimesService.getShowtimes({
       startDate: new Date(),
-      endDate: new Date(new Date().getTime() + 15 * 60 * 1000)
+      endDate: new Date(new Date().getTime() + 15 * 60 * 1000),
     });
     this.logger.log('Deleting unpaid bookings');
-    const deleted = upcoming.map(async (showtime) => {
+    upcoming.map(async (showtime) => {
       return await this.bookingRepository.destroy({
         where: {
-          showtime_id: showtime.id,
+          showtimeId: showtime.id,
           paid: false,
         },
       });

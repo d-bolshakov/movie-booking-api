@@ -10,18 +10,22 @@ module.exports = {
         unique: true,
         primaryKey: true,
       },
-      movie_id: {
+      movieId: {
         type: Sequelize.INTEGER,
-        references: {model: {tableName: 'movies'}, key: 'id'},
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        references: { model: { tableName: 'movies' }, key: 'id' },
       },
-      genre_id: {
+      genreId: {
         type: Sequelize.INTEGER,
-        references: {model: {tableName: 'genres'}, key: 'id'},
-      }
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        references: { model: { tableName: 'genres' }, key: 'id' },
+      },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
     return queryInterface.dropTable('movie_genres');
-  }
+  },
 };

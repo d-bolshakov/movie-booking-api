@@ -7,6 +7,7 @@ import { RefreshToken } from './models/refresh-token.model';
 import { AtStrategy, RtStrategy } from './strategies';
 import { User } from './models/user.model';
 import { Booking } from 'src/bookings/models/booking.model';
+import { TokenService } from './token.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { Booking } from 'src/bookings/models/booking.model';
     JwtModule.register({}),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AtStrategy, RtStrategy],
+  providers: [AuthService, TokenService, AtStrategy, RtStrategy],
 })
 export class AuthModule {}

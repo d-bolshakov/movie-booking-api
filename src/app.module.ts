@@ -49,7 +49,7 @@ import { FilesModule } from './files/files.module';
     ShowtimesModule,
     BookingsModule,
     SeederModule,
-    FilesModule
+    FilesModule,
   ],
   controllers: [],
   providers: [

@@ -1,6 +1,5 @@
 import {
   BelongsTo,
-  BelongsToMany,
   Column,
   DataType,
   ForeignKey,
@@ -12,9 +11,9 @@ import { Booking } from 'src/bookings/models/booking.model';
 import { Movie } from 'src/movies/models/movie.model';
 
 interface ShowtimeCreationAttrs {
-  movie_id: number;
-  hall_id: number;
-  seats_count: number;
+  movieId: number;
+  hallId: number;
+  seatsCount: number;
   datetime: Date;
 }
 
@@ -30,13 +29,13 @@ export class Showtime extends Model<Showtime, ShowtimeCreationAttrs> {
 
   @ForeignKey(() => Movie)
   @Column({ type: DataType.INTEGER, allowNull: false })
-  movie_id: number;
+  movieId: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
-  hall_id: number;
+  hallId: number;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
-  seats_count: number;
+  seatsCount: number;
 
   @Column({ type: DataType.DATE, allowNull: false })
   datetime: Date;
@@ -44,6 +43,6 @@ export class Showtime extends Model<Showtime, ShowtimeCreationAttrs> {
   @BelongsTo(() => Movie)
   movie: Movie;
 
-  @HasMany(() => Booking)
+  @HasMany(() => Booking, { onDelete: 'CASCADE', hooks: true })
   bookings: Booking[];
 }

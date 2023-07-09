@@ -1,9 +1,10 @@
 import { Transform, Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsString } from 'class-validator';
+import { IsDate, IsOptional, IsString } from 'class-validator';
 
-export class AddMovieDto {
+export class EditMovieDto {
   @ApiProperty({ example: 'Home Alone', description: 'Title of the movie' })
+  @IsOptional()
   @IsString({ message: 'Must be a string' })
   title: string;
 
@@ -11,6 +12,7 @@ export class AddMovieDto {
     example: 'Chris Columbus',
     description: 'Name of the director',
   })
+  @IsOptional()
   @IsString({ message: 'Must be a string' })
   director: string;
 
@@ -18,6 +20,7 @@ export class AddMovieDto {
     example: 'comedy, adventure',
     description: 'Genres of the movie',
   })
+  @IsOptional()
   @Transform(({ value }) => {
     return value.split(/\s?[,]\s?/);
   })
@@ -28,6 +31,7 @@ export class AddMovieDto {
     example: '2022-06-12',
     description: 'Release date of the movie',
   })
+  @IsOptional()
   @Type(() => Date)
   @IsDate({ message: 'Must be a date' })
   releaseDate: Date;

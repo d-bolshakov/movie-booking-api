@@ -8,6 +8,11 @@ services:
       POSTGRES_PASSWORD: root
     volumes:
       - ./volumes/postgres-dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     
   
   backend:
@@ -28,19 +33,20 @@ services:
       - .development.env
     command: npm run start:dev
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   migrations:
     container_name: movie-booking-migrations-dev
+    image: movie-booking-migrations:dev
     build:
       context: .
       dockerfile: Dockerfile.migrations
-    image: movie-booking-migrations:dev
-    command: './database/scripts/wait-for-it.sh db:5432 -- ./database/scripts/migrate.sh'
     env_file:
       - .development.env
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 networks:
   default:

@@ -1,14 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Tokens } from '../types';
+import { User } from '../models/user.model';
 
 export class SendUserDto {
-  constructor(user: any, tokens: Tokens) {
+  constructor(user: User, accessToken: string) {
     this.id = user.id;
     this.username = user.username;
     this.email = user.email;
     this.role = user.role;
-    this.access_token = tokens.access_token;
-    this.refresh_token = tokens.refresh_token;
+    this.accessToken = accessToken;
   }
 
   @ApiProperty({ example: '1', description: 'Unique identificator' })
@@ -27,11 +26,5 @@ export class SendUserDto {
     example: 'ghjgh345kjhkhjk.hh45j54h45b.45dsfsjj5bh43',
     description: 'JWT access token',
   })
-  readonly access_token: string;
-
-  @ApiProperty({
-    example: 'ghjgh345kjhkhjk.hh45j54h45b.45dsfsjj5bh43',
-    description: 'JWT refresh token',
-  })
-  readonly refresh_token: string;
+  readonly accessToken: string;
 }

@@ -1,15 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Movie } from '../models/movie.model';
 
 export class SendMovieDto {
-  constructor(movie: any, movieGenres = undefined) {
+  constructor(movie: Movie) {
     this.id = movie.id;
     this.title = movie.title;
     this.cover = movie.cover;
+    this.genres = movie.genres.map((genre) => genre.title);
     this.director = movie.director;
-    if (movieGenres) {
-      movieGenres.forEach((genre) => this.genres.push(genre));
-    } else movie.genres.forEach((genre) => this.genres.push(genre.title));
-    this.release_date = new Date(movie.release_date);
+    this.releaseDate = movie.releaseDate;
   }
 
   @ApiProperty({ example: '1', description: 'Unique identificator' })
@@ -31,5 +30,5 @@ export class SendMovieDto {
   genres = [];
 
   @ApiProperty({ example: '2022-06-12', description: 'Release date' })
-  release_date: Date;
+  releaseDate: Date;
 }

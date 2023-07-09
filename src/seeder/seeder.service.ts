@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ShowtimesService } from 'src/showtimes/showtimes.service';
 import { BookingsService } from 'src/bookings/bookings.service';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { Showtime } from 'src/showtimes/models/showtime.model';
+import { Booking } from 'src/bookings/models/booking.model';
 
 @Injectable()
 export class SeederService {
@@ -11,12 +13,12 @@ export class SeederService {
   ) {}
   private readonly logger = new Logger(SeederService.name);
 
-  createDatetimes(times: number[], dateOffsets: number[]) {
+  createDatetimes(times: number[], dateOffsets: number[]): Date[] {
     const date = new Date();
-    let datetimes = [];
+    const datetimes = [];
     times.forEach((time) => {
       dateOffsets.forEach((dateOffset) => {
-        let datetime = new Date(date.getTime());
+        const datetime = new Date(date.getTime());
         datetime.setDate(date.getDate() + dateOffset);
         datetime.setHours(time, 0, 0, 0);
         datetimes.push(datetime);
@@ -25,12 +27,15 @@ export class SeederService {
     return datetimes;
   }
 
-  async seedShowtimes(times: number[], dateOffsets: number[]) {
+  async seedShowtimes(
+    times: number[],
+    dateOffsets: number[],
+  ): Promise<Showtime[]> {
     const showtimes = this.createDatetimes(times, dateOffsets).map(
       (datetime, index) => ({
-        movie_id: (index % 2) + 1,
-        hall_id: 1,
-        seats_count: 40,
+        movieId: (index % 2) + 1,
+        hallId: 1,
+        seatsCount: 40,
         datetime,
       }),
     );
@@ -41,15 +46,15 @@ export class SeederService {
     );
   }
 
-  async seedBookings(showtime_ids: number[]) {
-    const bookings = showtime_ids.map((showtime_id) => ({
-      showtime_id,
+  async seedBookings(showtimeIds: number[]): Promise<Booking[]> {
+    const bookings = showtimeIds.map((showtimeId) => ({
+      showtimeId,
       seat: Math.floor(Math.random() * 40) + 1,
       paid: true,
     }));
     return await Promise.all(
       bookings.map(async (booking) => {
-        return await this.bookingsService.book(
+        return await this.bookingsService.createBooking(
           Math.floor(Math.random() * 2) + 1,
           booking,
         );
@@ -57,22 +62,22 @@ export class SeederService {
     );
   }
 
-  async seed() {
+  async seed(): Promise<void> {
     const times = [12, 18];
     const dateOffsets = [1, 2, 3, 4];
     this.logger.log('Seeding showtimes');
     const showtimes = await this.seedShowtimes(times, dateOffsets);
-    const showtime_ids = showtimes.map((showtime) => showtime.id);
+    const showtimeIds = showtimes.map((showtime) => showtime.id);
     this.logger.log('Seeding bookings');
-    const bookings = await this.seedBookings(showtime_ids);
+    await this.seedBookings(showtimeIds);
   }
 
-  async check() {
+  async check(): Promise<boolean> {
     return Boolean((await this.showtimesService.getShowtimes()).length);
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_10PM)
-  async handleCron() {
+  async handleCron(): Promise<void> {
     try {
       this.logger.log('Checking for upcoming showtimes');
       if (!(await this.check())) await this.seed();
